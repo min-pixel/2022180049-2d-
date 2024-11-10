@@ -1,0 +1,22 @@
+BulletManager 클래스 구현 (bullet_manager.py)
+구현 내용:
+BulletManager 클래스 작성, 플레이어와 적 리스트, 월드 객체를 인자로 받아 관리
+update() 메서드에서 1초 간격으로 shoot_bullet()을 호출하여 자동 발사
+shoot_bullet()에서 가장 가까운 적을 타겟팅하여 해당 방향으로 총알을 발사
+get_nearest_enemy() 메서드로 가장 가까운 적을 탐색
+총알의 수명 만료 확인을 위해 lifetime_expired() 메서드를 호출
+Bullet 클래스 수정 (bullet.py)
+수정 내용:
+Bullet 클래스에 lifetime_expired() 메서드 추가하여 수명이 다한 총알을 제거할 수 있도록 구현
+World 클래스 수정 (world.py)
+수정 내용:
+BulletManager 객체를 World 클래스에 등록할 수 있도록 set_bullet_manager() 메서드 추가
+world.update() 메서드에서 BulletManager.update()를 호출하여 BulletManager의 자동 발사가 main_scene.py에서 직접 호출하지 않아도 동작하도록 수정
+main_scene.py 수정
+수정 내용:
+BulletManager를 생성하고, world.set_bullet_manager()를 통해 World에 등록
+
+고려할 것 업데이트:
+총알과 적 객체의 이미지가 백그라운드를 움직이면 밀려남.
+
+불렛매니저를 만드는데 너무 오랜 시간이 걸려 다시 UI컨트롤러 제작을 3주차로 미룸.

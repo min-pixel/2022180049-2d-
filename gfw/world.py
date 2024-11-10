@@ -16,6 +16,7 @@ class World:
                 index += 1
 
         self.objects = [[] for i in range(layer_count)]
+        self.bullet_manager = None  # BulletManager를 위한 변수
     def append(self, go, layer_index=None):
         if layer_index is None:
             layer_index = go.layer_index
@@ -30,6 +31,9 @@ class World:
     def update(self):
         for go in self.all_objects():
             go.update()
+        # BulletManager 업데이트
+        if self.bullet_manager:
+            self.bullet_manager.update()
     def draw(self):
         for go in self.all_objects():
             go.draw()
@@ -43,6 +47,9 @@ class World:
                 draw_rectangle(l,b,r,t)
         if gfw.shows_object_count and gfw._system_font is not None:
             gfw._system_font.draw(10, 20, str(list(map(len, self.objects))) + ' ' + str(self.count()))
+
+    def set_bullet_manager(self, bullet_manager):
+        self.bullet_manager = bullet_manager  # BulletManager 등록
 
     def all_objects(self):
         for objs in self.objects:

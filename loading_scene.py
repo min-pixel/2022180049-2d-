@@ -61,6 +61,7 @@ IMAGE_FILES = [
     "res/bullet.png",
     "res/Progress_bg02.png",
     "res/Progress_fg02.png",
+    "res/enemy.png",
 ]
 
 if __name__ == '__main__':

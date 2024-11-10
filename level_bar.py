@@ -19,6 +19,7 @@ class LevelBar:
         self.progress = min(1.0, self.elapsed_time / self.max_time)
 
     def draw(self):
+        
         x, y = self.position
         # 배경 이미지 그리기
         self.bg_image.draw(x, y)

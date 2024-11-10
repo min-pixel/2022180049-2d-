@@ -14,6 +14,7 @@ class Timer:
 
     def draw(self):
         # 현재 경과 시간 계산
+        
         elapsed_time = time.time() - self.start_time
         minutes = int(elapsed_time // 60)
         seconds = int(elapsed_time % 60)
