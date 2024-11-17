@@ -1,4 +1,3 @@
-# bullet_manager.py
 import time
 import math
 from bullet import Bullet
@@ -11,6 +10,7 @@ class BulletManager:
         self.bullets = []       # 발사된 총알 리스트
         self.last_shot_time = 0  # 마지막 발사 시간 초기화
         self.shot_interval = 1.0  # 1초 간격으로 발사
+        self.min_shoot_distance = 1  # 최소 거리 조건 (픽셀 단위)
 
     def update(self):
         # 1초 간격으로 총알 발사
@@ -21,9 +21,34 @@ class BulletManager:
         # 모든 총알 업데이트 및 수명 만료된 총알 제거
         for bullet in self.bullets[:]:
             bullet.update()
+
+            # 수명 만료 시 제거
             if bullet.lifetime_expired():
+                
                 self.bullets.remove(bullet)
                 self.world.remove(bullet, self.world.layer.bullet)
+                continue
+
+            # 충돌 감지
+            for enemy in self.enemies:
+                if self.check_collision(bullet, enemy):
+                    enemy.hit_by_bullet()  # 적이 맞았을 때 효과 추가
+                    self.bullets.remove(bullet)
+                    self.world.remove(bullet, self.world.layer.bullet)
+                    break  # 이미 충돌했으므로 다른 적과 충돌 확인 생략
+
+    def check_collision(self, bullet, enemy):
+        # 정확한 바운드 박스를 가져옵니다.
+        bullet_bb = bullet.get_bb()
+        enemy_bb = enemy.get_bb()
+
+        # 충돌 판정 로직 (Bounding Box 방식)
+        return not (
+            bullet_bb[2] < enemy_bb[0] or  # 총알 오른쪽이 적의 왼쪽보다 왼쪽에 있음
+            bullet_bb[0] > enemy_bb[2] or  # 총알 왼쪽이 적의 오른쪽보다 오른쪽에 있음
+            bullet_bb[3] < enemy_bb[1] or  # 총알 위쪽이 적의 아래쪽보다 아래에 있음
+            bullet_bb[1] > enemy_bb[3]     # 총알 아래쪽이 적의 위쪽보다 위에 있음
+        )
 
     def shoot_bullet(self):
         # 가장 가까운 적을 찾기
@@ -31,9 +56,16 @@ class BulletManager:
         if nearest_enemy is None:
             return  # 적이 없으면 발사하지 않음
 
-        # 플레이어 위치와 가장 가까운 적 위치를 기반으로 방향 계산
+        # 플레이어와 적 사이 거리 계산
         dx, dy = nearest_enemy.x - self.player.x, nearest_enemy.y - self.player.y
         distance = math.sqrt(dx**2 + dy**2)
+
+        # 너무 가까운 적은 무시
+        if distance < self.min_shoot_distance:
+            print(f"Enemy too close: Skipping bullet generation (distance={distance})")
+            return
+
+        # 방향 계산
         direction = (dx / distance, dy / distance) if distance != 0 else (1, 0)
 
         # 총알 생성 및 월드에 추가
@@ -45,6 +77,10 @@ class BulletManager:
         min_distance = float('inf')
         nearest_enemy = None
         for enemy in self.enemies:
+            # 적이 삭제된 상태가 아니어야만 거리 계산
+            if enemy.is_hit:
+                continue
+
             dx, dy = enemy.x - self.player.x, enemy.y - self.player.y
             distance = math.sqrt(dx**2 + dy**2)
             if distance < min_distance:

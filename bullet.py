@@ -4,7 +4,7 @@ from pico2d import *
 import gfw
 
 class Bullet(gfw.Sprite):
-    def __init__(self, image_path, pos, direction, world, speed=600, lifetime=1.0):
+    def __init__(self, image_path, pos, direction, world, speed=400, lifetime=3.0):
         super().__init__(image_path, *pos)
         self.direction = direction
         self.speed = speed

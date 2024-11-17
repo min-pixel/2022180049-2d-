@@ -14,9 +14,12 @@ class World:
             for name in layer_names:
                 self.layer.__dict__[name] = index
                 index += 1
+            
 
         self.objects = [[] for i in range(layer_count)]
         self.bullet_manager = None  # BulletManager를 위한 변수
+        self.enemy_spawner = None  # EnemySpawner를 위한 변수
+        self.ui_controller = None  # UIController 변수 추가
     def append(self, go, layer_index=None):
         if layer_index is None:
             layer_index = go.layer_index
@@ -31,12 +34,18 @@ class World:
     def update(self):
         for go in self.all_objects():
             go.update()
+        if self.ui_controller:
+            self.ui_controller.update()  # UIController 업데이트
+        if self.enemy_spawner:
+            self.enemy_spawner.update()  # EnemySpawner 업데이트
         # BulletManager 업데이트
         if self.bullet_manager:
             self.bullet_manager.update()
     def draw(self):
         for go in self.all_objects():
             go.draw()
+        if self.ui_controller:
+            self.ui_controller.draw()  # UIController 렌더링
         if gfw.shows_bounding_box:
             for go in self.all_objects():
                 if not hasattr(go, 'get_bb'): continue
@@ -47,7 +56,7 @@ class World:
                 draw_rectangle(l,b,r,t)
         if gfw.shows_object_count and gfw._system_font is not None:
             gfw._system_font.draw(10, 20, str(list(map(len, self.objects))) + ' ' + str(self.count()))
-
+        
     def set_bullet_manager(self, bullet_manager):
         self.bullet_manager = bullet_manager  # BulletManager 등록
 
@@ -77,6 +86,12 @@ class World:
         with open(fn, 'rb') as f:
             self.objects = pickle.load(f)
         return True
+    
+    def set_enemy_spawner(self, spawner):
+        self.enemy_spawner = spawner
+
+    def set_ui_controller(self, ui_controller):
+        self.ui_controller = ui_controller
 
 def collides_box(a, b): # a or b is a Sprite
     la, ba, ra, ta = a.get_bb()

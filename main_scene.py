@@ -8,6 +8,8 @@ from level_bar import LevelBar
 from bullet import Bullet
 from enemy import Enemy
 from bullet_manager import BulletManager  # BulletManager 임포트
+from enemy_spawner import EnemySpawner
+from ui_controller import UIController
 
 world = World(['bg', 'player', 'bullet', 'ui'])
 
@@ -20,7 +22,7 @@ shows_object_count = True
 enemies = []  # 적 리스트
 
 def enter():
-    global bg, boy, font, level_bar, enemies
+    global bg, boy, font, level_bar, enemies, spawner, bullet_manager
 
     # 배경 추가
     bg = InfiniteScrollBackground('res/InGameBack_1280_960.png', margin=100)
@@ -32,14 +34,13 @@ def enter():
     boy.bg = bg
     world.append(boy, world.layer.player)
 
-    # 적 추가 (예: 5명의 적)
-    enemies.extend(Enemy(boy) for _ in range(5))
-    for enemy in enemies:
-        world.append(enemy, world.layer.player)
-
-    # BulletManager 추가 및 World에 등록
+    # BulletManager 추가
     bullet_manager = BulletManager(boy, world, enemies)
-    world.set_bullet_manager(bullet_manager)  # BulletManager 등록
+    world.set_bullet_manager(bullet_manager)
+
+    # EnemySpawner 초기화 및 등록
+    spawner = EnemySpawner(boy, world, bullet_manager)  # BulletManager 전달
+    world.set_enemy_spawner(spawner)
 
     # 폰트 로드
     try:
@@ -49,13 +50,19 @@ def enter():
     if font is None:
         print("Error: Font could not be loaded. Please check the file path.")
 
-    # 타이머 및 레벨 바 추가
+    # UIController 생성 및 등록
+    ui_controller = UIController()
+    world.set_ui_controller(ui_controller)
+
+    # 타이머 추가
     start_time = time.time()
     timer = Timer(start_time, font)
-    world.append(timer, world.layer.ui)
+    ui_controller.add_ui_element(timer)
 
+    # 레벨 진행 바 추가
     level_bar = LevelBar('res/progress_bg02.png', 'res/progress_fg02.png', max_time=60, position=(canvas_width // 2, canvas_height - 50))
-    world.append(level_bar, world.layer.ui)
+    ui_controller.add_ui_element(level_bar)
+
 
 def update():
     world.update()  # world.update()만 호출
