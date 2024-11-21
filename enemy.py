@@ -7,12 +7,12 @@ from behavior_tree import BehaviorTree, Selector, LeafNode, BT_SUCCESS, BT_FAIL
 from exp_item import ExpItem
 
 class Enemy(gfw.Sprite):
-    def __init__(self, player, world):
-        image_path = r"C:\Users\msi\Desktop\PokemonSub\res\Enemy.png"
+    def __init__(self, player, world, image_path="res/Enemy.png", speed=80, health=1):
         super().__init__(image_path, random.randint(0, get_canvas_width()), random.randint(0, get_canvas_height()))
-        self.speed = 80  # 이동 속도
+        self.speed = speed  # 이동 속도
+        self.health = health  # 체력
         self.player = player  # 추적할 플레이어 객체
-        self.world = world    # World 객체 참조 저장
+        self.world = world  # World 객체 참조 저장
         self.frame = 0
         self.action = 0  # 0은 왼쪽 이동, 1은 오른쪽 이동
         self.frame_count = 8  # 각 행에 포함된 프레임 수
@@ -50,8 +50,11 @@ class Enemy(gfw.Sprite):
     def update(self):
         if self.is_hit:
             if time.time() - self.hit_start_time >= self.flash_duration:
-                self.remove()
-                return
+                if self.health <= 0:
+                    self.remove()
+                else:
+                    self.is_hit = False
+            return
         else:
             self.bt.run()
 
@@ -75,12 +78,28 @@ class Enemy(gfw.Sprite):
 
     def hit_by_bullet(self):
         self.is_hit = True
+        self.health -= 1  # 체력 감소
         self.hit_start_time = time.time()
 
-        
-        exp_item = ExpItem((self.x, self.y), amount=10)
-        exp_item.set_world(self.world)  # World 객체 설정
-        self.world.append(exp_item, self.world.layer.bullet)
+        if self.health <= 0:
+            exp_item = ExpItem((self.x, self.y), amount=10)
+            exp_item.set_world(self.world)  # World 객체 설정
+            self.world.append(exp_item, self.world.layer.bullet)
 
     def remove(self):
         self.world.remove(self, self.world.layer.player)
+
+
+class Enemy02(Enemy):
+    def __init__(self, player, world):
+        super().__init__(player, world, "res/Enemy02.png", speed=70, health=2)
+
+
+class Enemy03(Enemy):
+    def __init__(self, player, world):
+        super().__init__(player, world, "res/Enemy03.png", speed=60, health=3)
+
+
+class Enemy04(Enemy):
+    def __init__(self, player, world):
+        super().__init__(player, world, "res/Enemy04.png", speed=50, health=4)
