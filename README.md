@@ -107,7 +107,8 @@ Scene 의 종류 및 구성, 전환 규칙
             기본 적 이미지: ![Enemy](https://github.com/user-attachments/assets/63e36a87-1111-4fa8-97c5-fa46803d9357)  
             Enemy02 이미지: ![Enemy02](https://github.com/user-attachments/assets/b90ce2aa-980d-46f4-8033-df53743fbab6)  
             Enemy03 이미지: ![Enemy03](https://github.com/user-attachments/assets/bf5f0f07-3e07-4d27-98ec-f095f5c03b47)  
-            Enemy04 이미지: ![Enemy03](https://github.com/user-attachments/assets/f6c6164e-2023-4cc2-bb7d-9e30bffa7c9a)  
+            Enemy04 이미지: ![Enemy04](https://github.com/user-attachments/assets/cfb65940-2086-4639-abea-2333b128cfa6)  
+  
           프레임 기반 애니메이션으로, 행동(왼쪽/오른쪽 이동)에 따라 프레임이 달라짐.  
           다양한 Enemy 클래스를 상속받아 체력과 속도가 다른 적 생성.  
      - **상호작용 정보**:  
