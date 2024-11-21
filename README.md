@@ -42,19 +42,9 @@ Scene 의 종류 및 구성, 전환 규칙
     1. 배경 이미지  
     2. '로딩 중..' 텍스트  
     3. 얼만큼 로딩이 진행됐는지 보여주는 로딩 바  
+    
   플레이 씬 (main_game_scene) 
-  1. 플레이어  
-   - **구성 정보**: 이미지![PokemonPlayer](https://github.com/user-attachments/assets/97c1e892-266d-44d7-879f-cff7a5b36438)
-를 사용하는 2D 캐릭터로, 방향키로 8방향 이동 가능.  
-   - **상호작용 정보**:  
-     - 경험치 아이템과 충돌 시 경험치를 획득하고 레벨 업 가능.  
-     - 적과 충돌 시 게임 종료.  
-   - **핵심 코드 설명**:  
-     ```python
-     def update(self):
-         self.x += self.dx * self.speed * self.mag * gfw.frame_time
-         self.y += self.dy * self.speed * self.mag * gfw.frame_time
-     ```
+    1. 플레이어  
     2. 플레이어가 쏘는 투사체  
     3. 적01  
     4. 적02 
@@ -85,6 +75,93 @@ Scene 의 종류 및 구성, 전환 규칙
   4. bullet_Manager: 플레이어의 기본 공격 수단에 대한 처리를 관리합니다. (가까운 적 객체 방향으로 쏘기, 1초마다 자동으로 쏘기)  
 
 함수 단위의 설명 (1차발표때는 아직 알 수 없을 것이므로, 2차발표때 추가)  
+  플레이 씬 (main_game_scene) 
+  1. 플레이어 (boy) 
+   - **구성 정보**: 이미지![PokemonPlayer](https://github.com/user-attachments/assets/20431fa6-0850-4bab-a4fa-ec02a6bc7c17)
+를 사용하는 2D 캐릭터로, 방향키로 8방향 이동 가능.
+프레임 기반 애니메이션으로, 8개의 프레임과 두 줄로 구성된 이미지에서 방향과 동작에 따라 다른 클립을 표시.
+   - **상호작용 정보**:  
+     - 경험치 아이템과 충돌 시 경험치를 획득하고 레벨 업 가능.  
+     - 적과 충돌 시 게임 종료.  
+   - **핵심 코드 설명**:  
+     ```python
+     def update(self):
+         self.x += self.dx * self.speed * self.mag * gfw.frame_time
+         self.y += self.dy * self.speed * self.mag * gfw.frame_time
+     ```
+    dx와 dy를 바탕으로 프레임 시간에 맞춰 위치를 계산. 
+  2. 플레이어가 쏘는 투사체 (Bullet)
+  - **구성 정보**: 이미지![bullet](https://github.com/user-attachments/assets/9ad73629-fcf6-448a-b2d4-9f154f0fd859)
+  를 사용하는 플레이어가 쏘는 투사체. 발사된 위치와 방향, 속도에 따라 매 프레임마다 이동.
+     - **상호작용 정보**:  
+       - 적과 충돌 시 적의 체력을 감소.  
+     - **핵심 코드 설명**:  
+       ```python
+       def update(self):
+          self.x += self.direction[0] * self.speed * gfw.frame_time
+          self.y += self.direction[1] * self.speed * gfw.frame_time
+       ```
+       총알의 이동 방향과 속도를 바탕으로 위치를 업데이트.
+    3. 적 (Enemy ~ Enemy04)
+        - **구성 정보**:
+            기본 적 이미지: ![Enemy](https://github.com/user-attachments/assets/63e36a87-1111-4fa8-97c5-fa46803d9357)
+            Enemy02 이미지: ![Enemy02](https://github.com/user-attachments/assets/b90ce2aa-980d-46f4-8033-df53743fbab6)
+            Enemy03 이미지: ![Enemy03](https://github.com/user-attachments/assets/bf5f0f07-3e07-4d27-98ec-f095f5c03b47)
+            Enemy04 이미지: ![Enemy03](https://github.com/user-attachments/assets/f6c6164e-2023-4cc2-bb7d-9e30bffa7c9a)
+          프레임 기반 애니메이션으로, 행동(왼쪽/오른쪽 이동)에 따라 프레임이 달라짐.
+          다양한 Enemy 클래스를 상속받아 체력과 속도가 다른 적 생성.
+     - **상호작용 정보**:  
+       - 총알과 충돌 시 체력이 감소.
+       - 체력이 0이 되면 사라지고 경험치 아이템 드랍.
+       - BehaviorTree를 사용하여 플레이어를 추적하는 행동을 구현.
+       - 플레이어와 부딪히면 게임 종료 (아직 미구현) 
+     - **핵심 코드 설명**:  
+       ```python
+       def chase_player(self):
+          dx = self.player.x - self.x
+          dy = self.player.y - self.y
+          distance = math.sqrt(dx**2 + dy**2)
+          self.x += (dx / distance) * self.speed * gfw.frame_time
+          self.y += (dy / distance) * self.speed * gfw.frame_time
+       ```
+       플레이어의 위치와의 거리(dx, dy)를 계산하여 적이 추적하도록 설정
+    7. 경험치 아이템 (ExpItem)
+        - **구성 정보**: 이미지![exp_item](https://github.com/user-attachments/assets/ba273faa-b0a6-444a-9e4b-b49b65d3b8da)
+  를 사용하는 오브젝트. 일정한 경험치를 제공하며 플레이어가 충돌 시 소멸.
+     - **상호작용 정보**:  
+       - 적이 죽으면 드랍.
+       - 플레이어와 닿으면 소멸 및 경험치 추가, 레벨 업 이벤트 
+     - **핵심 코드 설명**:  
+       ```python
+       def handle_collision(self, player):
+            if hasattr(player, 'level_bar'):
+            leveled_up = player.level_bar.add_exp(self.amount)
+            if leveled_up:
+               player.level_up()
+       ```
+       플레이어와의 충돌 시 경험치를 추가하고, 레벨 업 조건을 만족하면 이벤트를 실행
+    8. 레벨 게이지 (LevelBar)
+       - **구성 정보**: 이미지![progress_bg02](https://github.com/user-attachments/assets/42ea57a9-2768-413b-a4f0-518650ac5b9d)와 ![progress_fg02](https://github.com/user-attachments/assets/e79f8d41-5645-44ec-a08b-1b09a249e106)
+  를 사용하는 경험치 진행 바.
+     - **상호작용 정보**:  
+       - 경험치에 따라 진행률이 업데이트되며, 100%에 도달하면 레벨 업. (현재 레벨 업은 미구현)  
+     - **핵심 코드 설명**:  
+       ```python
+          def add_exp(self, exp):
+            self.progress += exp / self.max_exp
+            if self.progress >= 1.0:
+                self.progress = 1.0
+                return True
+            return False
+       ```
+       경험치가 최대치를 넘으면 레벨 업 이벤트를 반환.
+    9. 타이머 (timer)
+        - **구성 정보**: 시간 경과를 표시하는 텍스트 UI
+     - **상호작용 정보**:  
+       - 시간 경과에 따라 줄어드는 시간을 보여준다. (현재는 매 초 경과 시간을 계산하여 화면에 표시하는 중, 11/25 ~ 11/30 사이에 구현 예정)  
+     - **핵심 코드 설명**: 
+    10. 스킬 트리 UI  (아직 미구현)
+
  
 사용한/사용할 개발 기법들에 대한 간단한 소개  
   1. 자동 타겟팅 시스템: 플레이어가 적을 자동으로 공격하는 시스템.  
