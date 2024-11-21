@@ -102,14 +102,14 @@ Scene 의 종류 및 구성, 전환 규칙
           self.y += self.direction[1] * self.speed * gfw.frame_time
        ```
        총알의 이동 방향과 속도를 바탕으로 위치를 업데이트.
-    3. 적 (Enemy ~ Enemy04)
+  3. 적 (Enemy ~ Enemy04)
         - **구성 정보**:
-            기본 적 이미지: ![Enemy](https://github.com/user-attachments/assets/63e36a87-1111-4fa8-97c5-fa46803d9357)
-            Enemy02 이미지: ![Enemy02](https://github.com/user-attachments/assets/b90ce2aa-980d-46f4-8033-df53743fbab6)
-            Enemy03 이미지: ![Enemy03](https://github.com/user-attachments/assets/bf5f0f07-3e07-4d27-98ec-f095f5c03b47)
-            Enemy04 이미지: ![Enemy03](https://github.com/user-attachments/assets/f6c6164e-2023-4cc2-bb7d-9e30bffa7c9a)
-          프레임 기반 애니메이션으로, 행동(왼쪽/오른쪽 이동)에 따라 프레임이 달라짐.
-          다양한 Enemy 클래스를 상속받아 체력과 속도가 다른 적 생성.
+            기본 적 이미지: ![Enemy](https://github.com/user-attachments/assets/63e36a87-1111-4fa8-97c5-fa46803d9357)  
+            Enemy02 이미지: ![Enemy02](https://github.com/user-attachments/assets/b90ce2aa-980d-46f4-8033-df53743fbab6)  
+            Enemy03 이미지: ![Enemy03](https://github.com/user-attachments/assets/bf5f0f07-3e07-4d27-98ec-f095f5c03b47)  
+            Enemy04 이미지: ![Enemy03](https://github.com/user-attachments/assets/f6c6164e-2023-4cc2-bb7d-9e30bffa7c9a)  
+          프레임 기반 애니메이션으로, 행동(왼쪽/오른쪽 이동)에 따라 프레임이 달라짐.  
+          다양한 Enemy 클래스를 상속받아 체력과 속도가 다른 적 생성.  
      - **상호작용 정보**:  
        - 총알과 충돌 시 체력이 감소.
        - 체력이 0이 되면 사라지고 경험치 아이템 드랍.
@@ -125,7 +125,7 @@ Scene 의 종류 및 구성, 전환 규칙
           self.y += (dy / distance) * self.speed * gfw.frame_time
        ```
        플레이어의 위치와의 거리(dx, dy)를 계산하여 적이 추적하도록 설정
-    7. 경험치 아이템 (ExpItem)
+  4. 경험치 아이템 (ExpItem)
         - **구성 정보**: 이미지![exp_item](https://github.com/user-attachments/assets/ba273faa-b0a6-444a-9e4b-b49b65d3b8da)
   를 사용하는 오브젝트. 일정한 경험치를 제공하며 플레이어가 충돌 시 소멸.
      - **상호작용 정보**:  
@@ -140,7 +140,7 @@ Scene 의 종류 및 구성, 전환 규칙
                player.level_up()
        ```
        플레이어와의 충돌 시 경험치를 추가하고, 레벨 업 조건을 만족하면 이벤트를 실행
-    8. 레벨 게이지 (LevelBar)
+  5. 레벨 게이지 (LevelBar)
        - **구성 정보**: 이미지![progress_bg02](https://github.com/user-attachments/assets/42ea57a9-2768-413b-a4f0-518650ac5b9d)와 ![progress_fg02](https://github.com/user-attachments/assets/e79f8d41-5645-44ec-a08b-1b09a249e106)
   를 사용하는 경험치 진행 바.
      - **상호작용 정보**:  
@@ -155,12 +155,12 @@ Scene 의 종류 및 구성, 전환 규칙
             return False
        ```
        경험치가 최대치를 넘으면 레벨 업 이벤트를 반환.
-    9. 타이머 (timer)
+  6. 타이머 (timer)
         - **구성 정보**: 시간 경과를 표시하는 텍스트 UI
      - **상호작용 정보**:  
        - 시간 경과에 따라 줄어드는 시간을 보여준다. (현재는 매 초 경과 시간을 계산하여 화면에 표시하는 중, 11/25 ~ 11/30 사이에 구현 예정)  
      - **핵심 코드 설명**: 
-    10. 스킬 트리 UI  (아직 미구현)
+  7. 스킬 트리 UI  (아직 미구현)
 
  
 사용한/사용할 개발 기법들에 대한 간단한 소개  
