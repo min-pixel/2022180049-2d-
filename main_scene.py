@@ -22,7 +22,7 @@ shows_object_count = True
 enemies = []  # 적 리스트
 
 def enter():
-    global bg, boy, font, level_bar, enemies, spawner, bullet_manager
+    global bg, boy, font, level_bar, enemies, spawner, bullet_manager, exp_item_pool
 
     # 배경 추가
     bg = InfiniteScrollBackground('res/InGameBack_1280_960.png', margin=100)
@@ -33,6 +33,7 @@ def enter():
     boy = Boy()
     boy.bg = bg
     world.append(boy, world.layer.player)
+    
 
     # BulletManager 추가
     bullet_manager = BulletManager(boy, world, enemies)
@@ -54,14 +55,20 @@ def enter():
     ui_controller = UIController()
     world.set_ui_controller(ui_controller)
 
+    
+
     # 타이머 추가
     start_time = time.time()
     timer = Timer(start_time, font)
     ui_controller.add_ui_element(timer)
 
+
+    max_exp = 100
     # 레벨 진행 바 추가
-    level_bar = LevelBar('res/progress_bg02.png', 'res/progress_fg02.png', max_time=60, position=(canvas_width // 2, canvas_height - 50))
+    level_bar = LevelBar('res/progress_bg02.png', 'res/progress_fg02.png', max_exp=max_exp, position=(canvas_width // 2, canvas_height - 50))
     ui_controller.add_ui_element(level_bar)
+
+    boy.level_bar = level_bar  # 레벨 바 연결
 
 
 def update():

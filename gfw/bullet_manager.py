@@ -10,7 +10,7 @@ class BulletManager:
         self.bullets = []       # 발사된 총알 리스트
         self.last_shot_time = 0  # 마지막 발사 시간 초기화
         self.shot_interval = 1.0  # 1초 간격으로 발사
-        self.min_shoot_distance = 1  # 최소 거리 조건 (픽셀 단위)
+        self.min_shoot_distance = 0.1  # 최소 거리 조건 (픽셀 단위)
 
     def update(self):
         # 1초 간격으로 총알 발사
@@ -22,12 +22,7 @@ class BulletManager:
         for bullet in self.bullets[:]:
             bullet.update()
 
-            # 수명 만료 시 제거
-            if bullet.lifetime_expired():
-                
-                self.bullets.remove(bullet)
-                self.world.remove(bullet, self.world.layer.bullet)
-                continue
+            
 
             # 충돌 감지
             for enemy in self.enemies:

@@ -4,19 +4,16 @@ import time  # 'time' 모듈 임포트 추가
 from timer import Timer  # 타이머 클래스 임포트
 
 class LevelBar:
-    def __init__(self, bg_image_path, fg_image_path, max_time, position):
+    def __init__(self, bg_image_path, fg_image_path,max_exp, position):
         self.progress = 0
+        self.max_exp = max_exp  # 레벨업에 필요한 최대 경험치
         self.bg_image = gfw.image.load(bg_image_path)
         self.fg_image = gfw.image.load(fg_image_path)
-        self.max_time = max_time
         self.position = position
-        self.start_time = time.time()
+        
 
     def update(self):
-        # 경과 시간 계산
-        self.elapsed_time = time.time() - self.start_time
-        # 프로그레스 바 진행률 계산 (0 ~ 1 사이 값)
-        self.progress = min(1.0, self.elapsed_time / self.max_time)
+        pass
 
     def draw(self):
         
@@ -27,3 +24,11 @@ class LevelBar:
         fg_width = self.fg_image.w * self.progress
         if fg_width > 0:
             self.fg_image.clip_draw(0, 0, int(fg_width), self.fg_image.h, x - (self.bg_image.w // 2) + (fg_width / 2), y)
+
+
+    def add_exp(self, exp):
+        self.progress += exp / self.max_exp
+        if self.progress >= 1.0:
+            self.progress = 1.0  # 최대치로 제한
+            return True  # 레벨 업 발생
+        return False

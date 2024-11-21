@@ -20,6 +20,21 @@ class World:
         self.bullet_manager = None  # BulletManager를 위한 변수
         self.enemy_spawner = None  # EnemySpawner를 위한 변수
         self.ui_controller = None  # UIController 변수 추가
+
+    def get_player(self, player_class=None):
+        """플레이어 객체(Boy)를 반환"""
+        if player_class is None:
+            from boy import Boy  # 동적 임포트로 순환 참조 방지
+            player_class = Boy
+        
+        for obj in self.objects_at(self.layer.player):
+            if isinstance(obj, player_class):  # Boy 클래스인지 확인
+                return obj
+        return None  # 플레이어가 없으면 None 반환
+
+
+
+    
     def append(self, go, layer_index=None):
         if layer_index is None:
             layer_index = go.layer_index

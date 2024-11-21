@@ -108,3 +108,10 @@ def _load_system_font():
             break
         except:
             pass
+
+
+def pause():
+    if _stack:
+        _stack[-1].pause()  # 현재 씬의 pause 메서드 호출
+        global _running
+        _running = False  # 루프 중단

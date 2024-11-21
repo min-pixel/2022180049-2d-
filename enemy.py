@@ -4,6 +4,7 @@ import time
 from pico2d import *
 import gfw
 from behavior_tree import BehaviorTree, Selector, LeafNode, BT_SUCCESS, BT_FAIL
+from exp_item import ExpItem
 
 class Enemy(gfw.Sprite):
     def __init__(self, player, world):
@@ -75,6 +76,11 @@ class Enemy(gfw.Sprite):
     def hit_by_bullet(self):
         self.is_hit = True
         self.hit_start_time = time.time()
+
+        
+        exp_item = ExpItem((self.x, self.y), amount=10)
+        exp_item.set_world(self.world)  # World 객체 설정
+        self.world.append(exp_item, self.world.layer.bullet)
 
     def remove(self):
         self.world.remove(self, self.world.layer.player)

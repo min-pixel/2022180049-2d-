@@ -20,6 +20,7 @@ class Boy(gfw.Sprite):
         self.action = 1  # 1=오른쪽으로 이동, 0=왼쪽으로 이동
         self.mag = 1
         self.target = None
+        self.level_bar = None  # LevelBar 객체 참조
         self.frame_count = 8  # 각 방향마다 8개의 프레임
         self.frame_width = self.image.w // self.frame_count
         self.frame_height = self.image.h // 2  # 이미지가 2개의 행으로 구성됨
@@ -111,5 +112,26 @@ class Boy(gfw.Sprite):
         hw, hh = 20, 34
         return self.x - hw, self.y - hh, self.x + hw, self.y + hh
 
+    def check_collision_with_exp(self, exp_items, level_bar):
+        for item in exp_items[:]:
+            if gfw.world.collides_box(self, item):
+                     # 경험치 추가
+                leveled_up = level_bar.add_exp(item.amount)
+                
+                # 경험치 아이템 제거
+                exp_items.remove(item)
+                self.world.remove(item, self.world.layer.bullet)
+
+                if leveled_up:
+                    self.level_up()
+
+    def level_up(self):
+        print("Level Up!")
+        gfw.pause()  # 일시 정지 처리
+
+    def get_bb(self):
+        hw, hh = 20, 34  # 경계 박스 크기 조정 필요
+        return self.x - hw, self.y - hh, self.x + hw, self.y + hh
+        
     def __repr__(self):
         return 'Boy'
