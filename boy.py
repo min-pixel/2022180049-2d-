@@ -2,6 +2,8 @@ import sys
 import os
 import math
 import random
+import time  # time 모듈 임포트
+from enemy import Enemy  # Enemy 클래스 임포트
 
 # gobj.py 파일이 있는 디렉토리를 sys.path에 추가합니다.
 gobj_dir = r"C:\Users\msi\Desktop\PokemonSub\gfw"
@@ -11,8 +13,11 @@ from pico2d import *
 import gfw
 
 class Boy(gfw.Sprite):
-    def __init__(self):
+    def __init__(self, world, skill_tree_ui=None):
         super().__init__('res/PokemonPlayer.png', get_canvas_width() // 2, get_canvas_height() // 2)
+        self.skill_tree_ui = skill_tree_ui  # SkillTreeUI 참조 저장
+        self.world = world  # World 객체 참조
+        self.bullet_effect = None  # 기본 효과 없음
         self.time = 0  # 총 지나간 시간
         self.frame = 0
         self.dx, self.dy = 0, 0
@@ -25,11 +30,44 @@ class Boy(gfw.Sprite):
         self.frame_width = self.image.w // self.frame_count
         self.frame_height = self.image.h // 2  # 이미지가 2개의 행으로 구성됨
 
+        # 쉴드 관련 속성
+        self.shield_enabled = False  # 스킬 트리에서 쉴드 활성화 여부
+        self.is_shielded = False  # 무적 상태 여부
+        self.shield_duration = 4.0  # 쉴드 지속 시간 (초)
+        self.shield_start_time = 0  # 쉴드 시작 시간
+        self.shield_cooldown = 5.0  # 쉴드 재사용 대기시간 (초)
+        self.last_shield_time = 0  # 마지막 쉴드 활성화 시간
+
+    def activate_shield(self):
+
+        if not self.shield_enabled:
+            return
+
+
+        
+        current_time = time.time()
+        if current_time - self.last_shield_time < self.shield_cooldown:
+            remaining_time = self.shield_cooldown - (current_time - self.last_shield_time)
+        
+            return
+        
+        
+        self.is_shielded = True
+        self.shield_start_time = current_time
+        
+        
+        # 쉴드 이미지로 변경
+        self.image = gfw.image.load('res/PokemonPlayershieldmod.png')  # 쉴드 활성화 이미지
+        
+
     def draw(self):
         # 현재 프레임과 액션에 따른 이미지 좌표 계산
         x = self.frame * self.frame_width
         y = self.action * self.frame_height
         screen_pos = self.bg.to_screen(self.x, self.y) if self.bg else (self.x, self.y)
+
+        
+            
         # 클립 드로우를 사용해 이미지에서 특정 부분만 그립니다.
         self.image.clip_draw(x, y, self.frame_width, self.frame_height, *screen_pos)
 
@@ -56,6 +94,31 @@ class Boy(gfw.Sprite):
 
         if self.bg:
             self.bg.show(self.x, self.y)
+
+        
+            # 쉴드 활성화 상태일 때 적과 충돌 무시
+        if self.is_shielded:
+            elapsed_time = time.time() - self.shield_start_time
+    
+            if elapsed_time >= self.shield_duration:
+                self.is_shielded = False
+                self.last_shield_time = time.time()
+                self.image = gfw.image.load('res/PokemonPlayer.png')  # 원래 이미지로 복구
+                
+
+        # 쿨타임 확인 후 쉴드 재활성화 (스킬 트리에서 선택된 경우만)
+        if self.shield_enabled and not self.is_shielded:
+            current_time = time.time()
+            cooldown_elapsed = current_time - self.last_shield_time
+            if cooldown_elapsed >= self.shield_cooldown:
+                self.activate_shield()
+              
+        # 적과의 충돌 확인
+        if self.world and not self.is_shielded:
+            for enemy in self.world.objects_at(self.world.layer.player):
+                if isinstance(enemy, Enemy) and self.check_collision(enemy):
+                    gfw.quit()
+                    return
 
     def adjust_delta(self, x, y):
         if self.target is not None:
@@ -125,13 +188,30 @@ class Boy(gfw.Sprite):
                 if leveled_up:
                     self.level_up()
 
+
+    def check_collision(self, enemy):
+        """적과의 충돌을 확인"""
+        player_bb = self.get_bb()
+        enemy_bb = enemy.get_bb()
+        return not (
+            player_bb[2] < enemy_bb[0] or
+            player_bb[0] > enemy_bb[2] or
+            player_bb[3] < enemy_bb[1] or
+            player_bb[1] > enemy_bb[3]
+        )
+
     def level_up(self):
         print("Level Up!")
+        if self.level_bar:
+            self.level_bar.reset_for_level_up()  # 레벨 바 초기화 및 최대량 증가
         gfw.pause()  # 일시 정지 처리
+        if self.skill_tree_ui:
+            self.skill_tree_ui.activate()  # 스킬 트리 UI 활성화
 
-    def get_bb(self):
-        hw, hh = 20, 34  # 경계 박스 크기 조정 필요
-        return self.x - hw, self.y - hh, self.x + hw, self.y + hh
-        
+    def reset_state(self):
+        self.dx = 0
+        self.dy = 0
+        self.target = None
+            
     def __repr__(self):
         return 'Boy'

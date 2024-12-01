@@ -10,6 +10,7 @@ class Enemy(gfw.Sprite):
     def __init__(self, player, world, image_path="res/Enemy.png", speed=80, health=1):
         super().__init__(image_path, random.randint(0, get_canvas_width()), random.randint(0, get_canvas_height()))
         self.speed = speed  # 이동 속도
+        self.original_speed = speed  # 원래 속도 저장
         self.health = health  # 체력
         self.player = player  # 추적할 플레이어 객체
         self.world = world  # World 객체 참조 저장
@@ -24,6 +25,9 @@ class Enemy(gfw.Sprite):
         self.is_hit = False  # 맞았는지 여부
         self.hit_start_time = None  # 맞은 시간 기록
         self.flash_duration = 0.5  # 깜빡임 지속 시간
+        self.is_slowed = False  # 슬로우 상태 여부
+        self.slow_start_time = None  # 슬로우 시작 시간
+        self.slow_duration = 3.0  # 슬로우 효과 지속 시간
         self.build_behavior_tree()
 
     def build_behavior_tree(self):
@@ -48,6 +52,14 @@ class Enemy(gfw.Sprite):
         return BT_SUCCESS
 
     def update(self):
+
+                # 슬로우 상태 업데이트
+        if self.is_slowed:
+            if time.time() - self.slow_start_time >= self.slow_duration:
+                self.speed = self.original_speed  # 속도 복구
+                self.is_slowed = False
+        
+        
         if self.is_hit:
             if time.time() - self.hit_start_time >= self.flash_duration:
                 if self.health <= 0:
@@ -76,10 +88,19 @@ class Enemy(gfw.Sprite):
         hw, hh = (self.frame_width // 2) * self.scale, (self.frame_height // 2) * self.scale
         return self.x - hw, self.y - hh, self.x + hw, self.y + hh
 
-    def hit_by_bullet(self):
+    def hit_by_bullet(self, effect=None):
+        print(f"hit_by_bullet called with effect: {effect}")  # 디버깅 메시지
         self.is_hit = True
         self.health -= 1  # 체력 감소
         self.hit_start_time = time.time()
+
+                # 슬로우 효과 적용
+        if effect == "slow" and not self.is_slowed:
+            print("Applying slow effect!")  # 디버깅 메시지
+            self.is_slowed = True
+            self.speed *= 0  # 속도를 절반으로 감소
+            self.slow_start_time = time.time()
+            print(f"Enemy slowed! New speed: {self.speed}")
 
         if self.health <= 0:
             exp_item = ExpItem((self.x, self.y), amount=10)

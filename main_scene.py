@@ -10,6 +10,8 @@ from enemy import Enemy
 from bullet_manager import BulletManager  # BulletManager 임포트
 from enemy_spawner import EnemySpawner
 from ui_controller import UIController
+from skill_tree_ui import SkillTreeUI
+
 
 world = World(['bg', 'player', 'bullet', 'ui'])
 
@@ -22,22 +24,33 @@ shows_object_count = True
 enemies = []  # 적 리스트
 
 def enter():
-    global bg, boy, font, level_bar, enemies, spawner, bullet_manager, exp_item_pool
+    global bg, boy, font, level_bar, enemies, spawner, bullet_manager, exp_item_pool, skill_tree_ui, ui_controller
 
     # 배경 추가
     bg = InfiniteScrollBackground('res/InGameBack_1280_960.png', margin=100)
     world.append(bg, world.layer.bg)
     world.bg = bg
 
-    # 플레이어 추가
-    boy = Boy()
+    # UIController 생성 및 등록
+    ui_controller = UIController()
+    world.set_ui_controller(ui_controller)
+
+       # 플레이어 추가
+    boy = Boy(world)
     boy.bg = bg
     world.append(boy, world.layer.player)
-    
 
-    # BulletManager 추가
+        # BulletManager 추가
     bullet_manager = BulletManager(boy, world, enemies)
     world.set_bullet_manager(bullet_manager)
+
+    # SkillTreeUI 생성 및 player와 연결
+    skill_tree_ui = SkillTreeUI(player=boy,bullet_manager=bullet_manager)  # boy 객체 전달
+    boy.skill_tree_ui = skill_tree_ui  # Boy에 스킬 트리 UI 연결
+    ui_controller.add_ui_element(skill_tree_ui)
+    
+
+   
 
     # EnemySpawner 초기화 및 등록
     spawner = EnemySpawner(boy, world, bullet_manager)  # BulletManager 전달
@@ -51,11 +64,6 @@ def enter():
     if font is None:
         print("Error: Font could not be loaded. Please check the file path.")
 
-    # UIController 생성 및 등록
-    ui_controller = UIController()
-    world.set_ui_controller(ui_controller)
-
-    
 
     # 타이머 추가
     start_time = time.time()
@@ -63,7 +71,7 @@ def enter():
     ui_controller.add_ui_element(timer)
 
 
-    max_exp = 100
+    max_exp = 10
     # 레벨 진행 바 추가
     level_bar = LevelBar('res/progress_bg02.png', 'res/progress_fg02.png', max_exp=max_exp, position=(canvas_width // 2, canvas_height - 50))
     ui_controller.add_ui_element(level_bar)
@@ -77,6 +85,7 @@ def update():
 def draw():
     clear_canvas()
     world.draw()
+    ui_controller.draw()  # UI 요소 그리기
     update_canvas()
 
 def exit():
@@ -92,6 +101,10 @@ def resume():
     print('[main.resume()]')
 
 def handle_event(e):
+    if ui_controller.handle_event(e):  # UIController가 이벤트 처리
+        return
+    if skill_tree_ui.is_active:  # 스킬 트리 UI 활성화 상태에서는 Boy 이벤트를 처리하지 않음
+        return
     boy.handle_event(e)
 
 if __name__ == '__main__':

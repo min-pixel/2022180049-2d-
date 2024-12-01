@@ -7,10 +7,15 @@ class Timer:
         self.font = font
         self.position = (530, 630)  # 화면 정중앙 좌표 (canvas_width / 2, canvas_height / 2)
         self.color = (255, 255, 255)  # 흰색
+        self.is_active = True  # 항상 활성화 상태로 설정
 
     def update(self):
-        # 타이머는 매 프레임마다 업데이트가 필요 없습니다.
-        pass
+        if not self.is_active:
+            return
+
+
+
+
 
     def draw(self):
         # 현재 경과 시간 계산

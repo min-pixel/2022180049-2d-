@@ -59,10 +59,19 @@ IMAGE_FILES = [
     "res/InGameBack_1280_960.png",
     "res/PokemonPlayer.png",
     "res/bullet.png",
+    "res/bullet02.png",
+    "res/bullet03.png",
     "res/Progress_bg02.png",
     "res/Progress_fg02.png",
-    "res/enemy.png",
-    "res/exp_item.png"
+    "res/Enemy.png",
+    "res/Enemy02.png",
+    "res/Enemy03.png",
+    "res/Enemy04.png",
+    "res/exp_item.png",
+    "res/skillback.png",
+    "res/slow.png",
+    "res/pierce.png",
+    "res/shield.png",
 ]
 
 if __name__ == '__main__':

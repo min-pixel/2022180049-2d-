@@ -11,6 +11,13 @@ class BulletManager:
         self.last_shot_time = 0  # 마지막 발사 시간 초기화
         self.shot_interval = 1.0  # 1초 간격으로 발사
         self.min_shoot_distance = 0.1  # 최소 거리 조건 (픽셀 단위)
+        self.current_bullet_image = 'res/bullet.png'  # 기본 총알 이미지
+
+    def set_bullet_image(self, new_image):
+        """총알 이미지를 변경하는 메서드"""
+        self.current_bullet_image = new_image
+        print(f"Bullet image set to: {self.current_bullet_image}")
+        
 
     def update(self):
         # 1초 간격으로 총알 발사
@@ -27,9 +34,10 @@ class BulletManager:
             # 충돌 감지
             for enemy in self.enemies:
                 if self.check_collision(bullet, enemy):
-                    enemy.hit_by_bullet()  # 적이 맞았을 때 효과 추가
-                    self.bullets.remove(bullet)
-                    self.world.remove(bullet, self.world.layer.bullet)
+                    enemy.hit_by_bullet(effect=bullet.effect)  # 적이 맞았을 때 효과 추가
+                    if bullet.effect != "pierce":  # 관통 효과가 아니면 총알 제거
+                        self.bullets.remove(bullet)
+                        self.world.remove(bullet, self.world.layer.bullet)
                     break  # 이미 충돌했으므로 다른 적과 충돌 확인 생략
 
     def check_collision(self, bullet, enemy):
@@ -64,9 +72,11 @@ class BulletManager:
         direction = (dx / distance, dy / distance) if distance != 0 else (1, 0)
 
         # 총알 생성 및 월드에 추가
-        bullet = Bullet('res/bullet.png', (self.player.x, self.player.y), direction, self.world)
+        bullet = Bullet(self.current_bullet_image, (self.player.x, self.player.y), direction, self.world, effect=self.player.bullet_effect)
         self.bullets.append(bullet)
         self.world.append(bullet, self.world.layer.bullet)
+
+        print(f"Bullet created with effect: {bullet.effect}")  # 디버깅 메시지 추가
 
     def get_nearest_enemy(self):
         min_distance = float('inf')

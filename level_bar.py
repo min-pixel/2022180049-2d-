@@ -10,6 +10,7 @@ class LevelBar:
         self.bg_image = gfw.image.load(bg_image_path)
         self.fg_image = gfw.image.load(fg_image_path)
         self.position = position
+        self.is_active = True  # 항상 활성화된 상태
         
 
     def update(self):
@@ -32,3 +33,7 @@ class LevelBar:
             self.progress = 1.0  # 최대치로 제한
             return True  # 레벨 업 발생
         return False
+    
+    def reset_for_level_up(self):
+        self.progress = 0  # 게이지 초기화
+        self.max_exp = int(self.max_exp * 1.5)  # 최대 경험치량 1.5배 증가

@@ -3,6 +3,7 @@ from pico2d import *
 import time
 
 _running = True
+_paused = False  # 일시정지 상태를 나타내는 변수
 _stack = []
 
 def start(scene):
@@ -25,14 +26,15 @@ def start(scene):
     last_time = time.time()
 
     while _running: # 무한루프를 돈다
+        if not _paused:  # 일시정지가 아닐 때만 업데이트 실행
 
-        # inter-frame (delta) time
-        now = time.time()
-        gfw.frame_time = now - last_time
-        last_time = now
+            # inter-frame (delta) time
+            now = time.time()
+            gfw.frame_time = now - last_time
+            last_time = now
 
-        # update() 를 수행한다 (Game Logic)
-        _stack[-1].world.update()
+            # update() 를 수행한다 (Game Logic)
+            _stack[-1].world.update()
 
         # draw() 를 수행한다 (Rendering)
         clear_canvas()
@@ -47,7 +49,11 @@ def start(scene):
                     quit()
                 elif e.type == SDL_KEYDOWN:
                     if e.key == SDLK_ESCAPE:
-                        pop()
+                        if _paused:
+                            resume()
+                        else:
+                            pause()
+                        #pop()
 
     while _stack:
         _stack.pop().exit()
@@ -110,8 +116,20 @@ def _load_system_font():
             pass
 
 
+#def pause():
+    #if _stack:
+        #_stack[-1].pause()  # 현재 씬의 pause 메서드 호출
+        #global _running
+        #_running = False  # 루프 중단
+
 def pause():
-    if _stack:
-        _stack[-1].pause()  # 현재 씬의 pause 메서드 호출
-        global _running
-        _running = False  # 루프 중단
+    global _paused
+    _paused = True
+    print("Game Paused")  # 일시정지 상태 출력
+
+def resume():
+    global _paused
+    _paused = False
+    print("Game Resumed")  # 재개 상태 출력
+
+

@@ -6,6 +6,7 @@ class EnemySpawner:
     def __init__(self, player, world, bullet_manager):
         self.player = player
         self.world = world
+        
         self.bullet_manager = bullet_manager  # BulletManager 참조
         self.spawn_interval = 1.0  # 적 소환 주기 (1초)
         self.last_spawn_time = time.time()
