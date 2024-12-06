@@ -28,3 +28,11 @@ class ExpItem(gfw.Sprite):
         # 월드에서 아이템 제거
         if self.world:
             self.world.remove(self, self.world.layer.bullet)
+
+    def draw(self):
+        # 배경 스크롤 좌표 반영
+        if self.world and self.world.bg:
+            screen_x, screen_y = self.world.bg.to_screen(self.x, self.y)
+        else:
+            screen_x, screen_y = self.x, self.y
+        self.image.draw(screen_x, screen_y)

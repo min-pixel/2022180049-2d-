@@ -31,7 +31,9 @@ class Bullet(gfw.Sprite):
         return (time.time() - self.spawn_time) >= self.lifetime
 
     def draw(self):
+        # 배경을 기준으로 위치 계산
+        screen_pos = self.world.bg.to_screen(self.x, self.y) if self.world.bg else (self.x, self.y)
         if hasattr(self, 'image') and self.image:
-            self.image.draw(self.x, self.y)
+            self.image.draw(*screen_pos)
 
             

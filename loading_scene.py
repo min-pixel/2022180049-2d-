@@ -72,6 +72,8 @@ IMAGE_FILES = [
     "res/slow.png",
     "res/pierce.png",
     "res/shield.png",
+    "res/gameover.png",
+    "res/gamewin.png"
 ]
 
 if __name__ == '__main__':

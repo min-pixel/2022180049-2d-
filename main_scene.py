@@ -11,7 +11,8 @@ from bullet_manager import BulletManager  # BulletManager 임포트
 from enemy_spawner import EnemySpawner
 from ui_controller import UIController
 from skill_tree_ui import SkillTreeUI
-
+import gameover_scene
+import gamewin_scene  # Game Win 씬 추가
 
 world = World(['bg', 'player', 'bullet', 'ui'])
 
@@ -38,6 +39,7 @@ def enter():
        # 플레이어 추가
     boy = Boy(world)
     boy.bg = bg
+    boy.collision_callback = on_player_collision  # 충돌 콜백 설정
     world.append(boy, world.layer.player)
 
         # BulletManager 추가
@@ -65,9 +67,8 @@ def enter():
         print("Error: Font could not be loaded. Please check the file path.")
 
 
-    # 타이머 추가
-    start_time = time.time()
-    timer = Timer(start_time, font)
+    # 타이머 추가 (제한 시간 60초)
+    timer = Timer(60, font, on_time_up)
     ui_controller.add_ui_element(timer)
 
 
@@ -77,6 +78,16 @@ def enter():
     ui_controller.add_ui_element(level_bar)
 
     boy.level_bar = level_bar  # 레벨 바 연결
+
+
+def on_player_collision():
+    """플레이어가 적과 충돌했을 때 호출"""
+    gfw.change(gameover_scene)  # Game Over 씬으로 전환
+
+def on_time_up():
+    """제한 시간이 종료되었을 때 호출"""
+    
+    gfw.change(gamewin_scene)  # Game Win 씬으로 전환
 
 
 def update():

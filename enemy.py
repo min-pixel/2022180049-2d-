@@ -76,14 +76,22 @@ class Enemy(gfw.Sprite):
             self.time_accumulator = 0
 
     def draw(self):
+        
         x = self.frame * self.frame_width
         y = self.action * self.frame_height
+
+        # 배경 좌표를 기준으로 화면 좌표 계산
+        if self.world and self.world.bg:
+            screen_x, screen_y = self.world.bg.to_screen(self.x, self.y)
+        else:
+            screen_x, screen_y = self.x, self.y
+
         if self.is_hit:
             if int((time.time() - self.hit_start_time) * 10) % 2 == 0:
-                self.image.clip_draw(x, y, self.frame_width, self.frame_height, self.x, self.y, self.frame_width * self.scale, self.frame_height * self.scale)
+                self.image.clip_draw(x, y, self.frame_width, self.frame_height, screen_x, screen_y, self.frame_width * self.scale, self.frame_height * self.scale)
         else:
-            self.image.clip_draw(x, y, self.frame_width, self.frame_height, self.x, self.y, self.frame_width * self.scale, self.frame_height * self.scale)
-
+            self.image.clip_draw(x, y, self.frame_width, self.frame_height, screen_x, screen_y, self.frame_width * self.scale, self.frame_height * self.scale)
+        
     def get_bb(self):
         hw, hh = (self.frame_width // 2) * self.scale, (self.frame_height // 2) * self.scale
         return self.x - hw, self.y - hh, self.x + hw, self.y + hh

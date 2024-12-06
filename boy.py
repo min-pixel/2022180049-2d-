@@ -4,6 +4,9 @@ import math
 import random
 import time  # time 모듈 임포트
 from enemy import Enemy  # Enemy 클래스 임포트
+import gfw
+
+
 
 # gobj.py 파일이 있는 디렉토리를 sys.path에 추가합니다.
 gobj_dir = r"C:\Users\msi\Desktop\PokemonSub\gfw"
@@ -81,6 +84,10 @@ class Boy(gfw.Sprite):
         self.x += self.dx * self.speed * self.mag * gfw.frame_time
         self.y += self.dy * self.speed * self.mag * gfw.frame_time
 
+        # 배경 위치와 동기화
+        if self.bg:
+            self.bg.show(self.x, self.y)
+
         # 타겟이 있는 경우 타겟까지 이동
         if self.target is not None:
             tx, ty = self.target
@@ -117,7 +124,8 @@ class Boy(gfw.Sprite):
         if self.world and not self.is_shielded:
             for enemy in self.world.objects_at(self.world.layer.player):
                 if isinstance(enemy, Enemy) and self.check_collision(enemy):
-                    gfw.quit()
+                    if self.collision_callback:  # 충돌 콜백이 정의되어 있으면 호출
+                        self.collision_callback()
                     return
 
     def adjust_delta(self, x, y):
