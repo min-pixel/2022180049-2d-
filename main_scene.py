@@ -27,6 +27,9 @@ enemies = []  # 적 리스트
 def enter():
     global bg, boy, font, level_bar, enemies, spawner, bullet_manager, exp_item_pool, skill_tree_ui, ui_controller
 
+    # 월드 초기화
+    world.clear()
+    
     # 배경 추가
     bg = InfiniteScrollBackground('res/InGameBack_1280_960.png', margin=100)
     world.append(bg, world.layer.bg)
@@ -72,7 +75,7 @@ def enter():
     ui_controller.add_ui_element(timer)
 
 
-    max_exp = 10
+    max_exp = 100
     # 레벨 진행 바 추가
     level_bar = LevelBar('res/progress_bg02.png', 'res/progress_fg02.png', max_exp=max_exp, position=(canvas_width // 2, canvas_height - 50))
     ui_controller.add_ui_element(level_bar)

@@ -62,7 +62,10 @@ class SkillTreeUI:
                         self.player.shield_enabled = True
                         self.player.activate_shield()  # 쉴드 활성화
                         
-                        
+
+                    # 적 정지 로직 추가
+                    for enemy in self.bullet_manager.enemies:
+                        enemy.pause(1.0)  # 1초간 정지
                         
                     self.deactivate()
                     gfw.resume()  # 일시정지 해제

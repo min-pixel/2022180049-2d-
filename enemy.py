@@ -7,7 +7,7 @@ from behavior_tree import BehaviorTree, Selector, LeafNode, BT_SUCCESS, BT_FAIL
 from exp_item import ExpItem
 
 class Enemy(gfw.Sprite):
-    def __init__(self, player, world, image_path="res/Enemy.png", speed=80, health=1):
+    def __init__(self, player, world, image_path="res/Enemy.png", speed=230, health=1):
         super().__init__(image_path, random.randint(0, get_canvas_width()), random.randint(0, get_canvas_height()))
         self.speed = speed  # 이동 속도
         self.original_speed = speed  # 원래 속도 저장
@@ -29,6 +29,8 @@ class Enemy(gfw.Sprite):
         self.slow_start_time = None  # 슬로우 시작 시간
         self.slow_duration = 3.0  # 슬로우 효과 지속 시간
         self.build_behavior_tree()
+        self.is_paused = False  # 정지 상태
+        self.pause_end_time = 0  # 정지 종료 시간
 
     def build_behavior_tree(self):
         self.bt = BehaviorTree(
@@ -36,6 +38,11 @@ class Enemy(gfw.Sprite):
                 LeafNode('Chase', self.chase_player)
             ])
         )
+
+    def pause(self, duration):
+        """적을 일정 시간 동안 정지 상태로 만듭니다."""
+        self.is_paused = True
+        self.pause_end_time = time.time() + duration
 
     def chase_player(self):
         dx = self.player.x - self.x
@@ -52,6 +59,13 @@ class Enemy(gfw.Sprite):
         return BT_SUCCESS
 
     def update(self):
+
+        # 정지 상태라면 정지 시간이 끝날 때까지 업데이트 중단
+        if self.is_paused:
+            if time.time() >= self.pause_end_time:
+                self.is_paused = False  # 정지 해제
+            else:
+                return
 
                 # 슬로우 상태 업데이트
         if self.is_slowed:
@@ -97,18 +111,16 @@ class Enemy(gfw.Sprite):
         return self.x - hw, self.y - hh, self.x + hw, self.y + hh
 
     def hit_by_bullet(self, effect=None):
-        print(f"hit_by_bullet called with effect: {effect}")  # 디버깅 메시지
         self.is_hit = True
         self.health -= 1  # 체력 감소
         self.hit_start_time = time.time()
 
                 # 슬로우 효과 적용
         if effect == "slow" and not self.is_slowed:
-            print("Applying slow effect!")  # 디버깅 메시지
             self.is_slowed = True
             self.speed *= 0  # 속도를 절반으로 감소
             self.slow_start_time = time.time()
-            print(f"Enemy slowed! New speed: {self.speed}")
+            
 
         if self.health <= 0:
             exp_item = ExpItem((self.x, self.y), amount=10)
@@ -121,14 +133,14 @@ class Enemy(gfw.Sprite):
 
 class Enemy02(Enemy):
     def __init__(self, player, world):
-        super().__init__(player, world, "res/Enemy02.png", speed=70, health=2)
+        super().__init__(player, world, "res/Enemy02.png", speed=100, health=2)
 
 
 class Enemy03(Enemy):
     def __init__(self, player, world):
-        super().__init__(player, world, "res/Enemy03.png", speed=60, health=3)
+        super().__init__(player, world, "res/Enemy03.png", speed=90, health=3)
 
 
 class Enemy04(Enemy):
     def __init__(self, player, world):
-        super().__init__(player, world, "res/Enemy04.png", speed=50, health=4)
+        super().__init__(player, world, "res/Enemy04.png", speed=80, health=4)

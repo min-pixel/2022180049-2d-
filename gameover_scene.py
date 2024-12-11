@@ -31,9 +31,12 @@ def handle_event(e):
         gfw.quit()
     elif e.type == SDL_KEYDOWN:
         if e.key == SDLK_RETURN:  # 엔터 키로 메인 씬 재시작
+            
             gfw.change(main_scene)
-        else:  # 다른 키 입력 시 게임 종료
+        elif e.key == SDLK_q:
             gfw.quit()
+        else:  # 다른 키 입력 시 게임 종료
+            pass
 
 def exit():
     # "Game Over" 이미지 언로드 및 리소스 정리

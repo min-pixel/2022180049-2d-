@@ -16,7 +16,7 @@ class BulletManager:
     def set_bullet_image(self, new_image):
         """총알 이미지를 변경하는 메서드"""
         self.current_bullet_image = new_image
-        print(f"Bullet image set to: {self.current_bullet_image}")
+        
         
 
     def update(self):
@@ -65,7 +65,6 @@ class BulletManager:
 
         # 너무 가까운 적은 무시
         if distance < self.min_shoot_distance:
-            print(f"Enemy too close: Skipping bullet generation (distance={distance})")
             return
 
         # 방향 계산
@@ -76,8 +75,7 @@ class BulletManager:
         self.bullets.append(bullet)
         self.world.append(bullet, self.world.layer.bullet)
 
-        print(f"Bullet created with effect: {bullet.effect}")  # 디버깅 메시지 추가
-
+        
     def get_nearest_enemy(self):
         min_distance = float('inf')
         nearest_enemy = None

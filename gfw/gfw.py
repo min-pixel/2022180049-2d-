@@ -125,6 +125,9 @@ def _load_system_font():
 def pause():
     global _paused
     _paused = True
+    for obj in _stack[-1].world.all_objects():
+        if hasattr(obj, 'pause_behavior'):
+            obj.pause_behavior()
     print("Game Paused")  # 일시정지 상태 출력
 
 def resume():

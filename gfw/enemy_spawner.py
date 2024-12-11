@@ -10,13 +10,13 @@ class EnemySpawner:
         self.bullet_manager = bullet_manager  # BulletManager 참조
         self.spawn_interval = 1.0  # 적 소환 주기 (1초)
         self.last_spawn_time = time.time()
-        self.additional_spawn_interval = 5.0  # 추가 적 수 증가 간격 (5초)
+        self.additional_spawn_interval = 8.0  # 추가 적 수 증가 간격 (5초)
         self.last_additional_spawn_time = time.time()
         self.spawn_count = 1  # 현재 한 번에 소환되는 적 수
 
         # 가중치 설정
         self.enemy_classes = [Enemy, Enemy02, Enemy03, Enemy04]
-        self.enemy_weights = [60, 25, 10, 5]  # Enemy가 가장 자주 등장하고, Enemy04는 드물게 등장
+        self.enemy_weights = [10, 50, 25, 15]  # Enemy가 가장 자주 등장하고, Enemy04는 드물게 등장
 
     def update(self):
         current_time = time.time()
