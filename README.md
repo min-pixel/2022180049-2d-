@@ -19,7 +19,7 @@
   스킬 종류:
     슬로우: 투사체를 맞은 적을 느리게 만듦.
     관통: 투사체가 여러 적을 관통하여 경로상의 모든 적에게 데미지.
-    쉴드: 플레이어 주변을 돌며 적의 공격을 막아주는 보호막 형태의 강화된 투사체를 생성합니다.
+    쉴드: 일정 시간 플레이어를 무적으로 만들어 줌. (게임의 난이도 조정을 위해 수정함 12/12)
 5. 플레이어는 최대 3레벨까지 성장 가능.
 6. 적의 종류:
     체력이 많고 느리게 움직이는 적.
@@ -161,9 +161,58 @@ Scene 의 종류 및 구성, 전환 규칙
   6. 타이머 (timer)
         - **구성 정보**: 시간 경과를 표시하는 텍스트 UI
      - **상호작용 정보**:  
-       - 시간 경과에 따라 줄어드는 시간을 보여준다. (현재는 매 초 경과 시간을 계산하여 화면에 표시하는 중, 11/25 ~ 11/30 사이에 구현 예정)  
+       - 시간 경과에 따라 줄어드는 시간을 보여준다.  
      - **핵심 코드 설명**: 
-  7. 스킬 트리 UI  (아직 미구현)
+  7. 스킬 트리 UI
+    - **구성 정보**:  
+        이미지: ![image](https://github.com/user-attachments/assets/7068e7a6-6499-4804-853d-9fe642f18887)
+      화면 중앙에 스킬 선택 배경과 3개의 스킬 아이콘이 세로로 정렬된 UI.
+      
+     - **상호작용 정보**:  
+       - 레벨업 시 UI가 활성화되어 3개의 스킬 중 하나를 선택 가능.  
+       - 슬로우: 적을 느리게 하는 탄환을 발사.  ![slow](https://github.com/user-attachments/assets/0d9f994d-9b5b-48a7-a507-e5d3fe509966)  
+
+       - 관통: 여러 적을 통과하는 탄환을 발사.  ![pierce](https://github.com/user-attachments/assets/4870e2d0-011a-4c34-ab8f-c9c2f04e90b2)  
+
+       - 쉴드: 일정 시간 동안 플레이어를 무적으로 만들어 줌.  ![shield](https://github.com/user-attachments/assets/f9e678ba-eb50-423a-b848-6174a352e0a1)  
+   
+     - **핵심 코드 설명**:  
+       ```python
+          def handle_event(self, e):
+            if not self.is_active:
+                return False
+    
+            if e.type == SDL_MOUSEBUTTONDOWN:
+                x, y = e.x, get_canvas_height() - e.y
+                for i, sprite in enumerate(self.sprites):
+                    button_x, button_y = sprite.x - sprite.width // 2, sprite.y - sprite.height // 2
+                    button_width, button_height = sprite.width, sprite.height
+                    if (button_x <= x <= button_x + button_width and
+                            button_y <= y <= button_y + button_height):
+                        print(f"Selected: Option {i+1}")
+                        if i == 0:  # slow 선택 시
+                            self.bullet_manager.set_bullet_image("res/bullet02.png")  # BulletManager 호출
+                            self.player.bullet_effect = "slow"
+                        elif i == 1:  # pierce 선택
+                            self.bullet_manager.set_bullet_image("res/bullet03.png")  # BulletManager 호출
+                            self.player.bullet_effect = "pierce"
+                        elif i == 2:  # shield 선택
+                            self.player.shield_enabled = True
+                            self.player.activate_shield()  # 쉴드 활성화
+                            
+    
+                        # 적 정지 로직 추가
+                        for enemy in self.bullet_manager.enemies:
+                            enemy.pause(1.0)  # 1초간 정지
+                            
+                        self.deactivate()
+                        gfw.resume()  # 일시정지 해제
+                        self.player.reset_state()  # 플레이어 상태 초기화
+                        return True
+            return False
+       ```
+       마우스 클릭으로 스킬 버튼을 선택하며, 선택된 스킬에 따라 BulletManager 또는 플레이어 속성 업데이트.  
+       적을 1초간 정지시키는 로직 포함.  
 
  
 사용한/사용할 개발 기법들에 대한 간단한 소개  
@@ -183,9 +232,6 @@ Scene 의 종류 및 구성, 전환 규칙
 프레임워크에서 지원되는 기능들 중 어떤 것을 사용할 것인지  
    1. pico2d를 사용해 화면 렌더링 및 입력 처리.  
    2. gfw 프레임워크를 사용해 씬 전환, 상태 관리.
-
-아직 배우지 않았거나 다루지 않을 항목이 있는지   
-  1.   
 
 일정   
 1주차 (10/28 - 11/3): 기본 시스템 구축 및 캐릭터 동작  
@@ -219,8 +265,8 @@ Scene 의 종류 및 구성, 전환 규칙
   목표: 시스템 통합 및 오류 제거  
     전체 기능 동작 확인 및 버그 수정 
 
-    플레이어가 게임 가장자리에서 이동해 배경화면이 움직일 시 바운드 박스와 이미지의 위치가 동기화 되지 않는 문제는 해결했느나,  
-    게임을 재시작하면 적 객체가 초기화 되지 않는 문제는 고치지 못함.  
+    플레이어가 게임 가장자리에서 이동해 배경화면이 움직일 시 바운드 박스와 이미지의 위치가 동기화 되지 않는 문제는 해결했으나,  
+    게임을 재시작하면 적 객체가 초기화 되지 않는 문제는 고치지 못함. 그리고 레벨 업 후 스킬 선택을 하면 적들의 위치가 플레이어의 위치로 바뀌는 버그 확인 -> 스킬 선택 후 1초간 적들 정지시키는 걸로 해결.  
     
 6.5주차 (12/9 - 12/12): 최종 점검 및 보완  
   목표: 전체 시스템 점검 및 세부 조정  
@@ -228,7 +274,68 @@ Scene 의 종류 및 구성, 전환 규칙
     최종 발표 준비: 게임 화면 캡처, 데모 영상 제작, 발표 자료 준비 
 
     재시작시 초기화 되지 않는 버그는 결국 고치지 못했고, 실행 파일로도 제작을 못함.  
-    파이인스톨러로 빌드할 시, 다른 컴퓨터에선 실행이 안 되며 바이러스로 오인식함.
+    파이인스톨러로 빌드할 시, 다른 컴퓨터에선 실행이 안 되며 바이러스로 오인식함.  
+
+## 사용된 기술
+1. 프레임워크 및 라이브러리:  
+pico2d: 2D 그래픽 렌더링, 이벤트 처리, 게임 루프 관리를 위해 사용.  
+BehaviorTree: 적의 행동 로직(플레이어 추적 등)을 구현하기 위해 사용.  
+gfw 프레임워크: 씬 전환, 상태 관리, 객체 통합 등을 효율적으로 관리.
+
+2. 게임 구조:  
+레이어 기반 객체 관리: world.py를 통해 여러 레이어에서 객체를 관리하며 충돌 및 렌더링 처리.  
+UI 통합 관리: ui_controller.py로 UI 요소를 업데이트하고 렌더링.  
+씬 관리 시스템: gfw.py를 통해 씬 전환과 상태 관리를 효율적으로 구현.
+
+3. 전투 및 스킬 시스템:  
+자동 타겟팅 시스템: bullet_manager.py에서 플레이어의 총알이 가장 가까운 적을 자동으로 타겟팅.  
+스킬 트리 및 업그레이드 시스템: SkillTreeUI를 통해 플레이어 레벨업 시 무기 및 스킬 업그레이드 선택 가능.  
+스킬 효과: 슬로우, 관통, 쉴드 등의 효과를 구현.
+
+5. 적 생성 및 AI:  
+enemy_spawner.py에서 적의 생성 주기 및 수량을 시간에 따라 조정.  
+BehaviorTree를 사용해 적의 플레이어 추적 및 행동 패턴 구현.
+
+6. 레벨 및 경험치 시스템:  
+level_bar.py를 활용해 경험치 진행 상황을 시각적으로 표시.  
+적 처치 후 드랍되는 exp_item.py를 통해 경험치를 획득하고 레벨업 이벤트를 실행.
+
+7. 시간 제한 및 게임 상태 관리:  
+timer.py를 사용해 제한 시간을 표시하며, 종료 시 승리(gamewin_scene.py) 또는 패배(gameover_scene.py) 화면으로 전환.
+
+8. 애니메이션 및 배경 처리:  
+프레임 기반 애니메이션: 플레이어 및 적의 행동에 따라 프레임이 변경.  
+무한 스크롤 배경: InfiniteScrollBackground를 통해 플레이어 이동에 따라 배경 스크롤 구현.  
+
+## 참고한 것들  
+1. https://github.com/kairess/Vampire-Survivors-Python
+2. 수업 중 다룬 예제 코드에서 UI 및 객체 관리 방법을 참고  
+   
+## 수업내용에서 차용한 것
+1. init.py, gfw.py, gobj.py, image.py, world.py: 수업시간에 제공된 기본 게임 프레임워크를 바탕으로 게임에 맞게 수정을 하며 제작.
+2. 수업 중 다룬 BehaviorTree 를 참고하여 적 AI 로직 개발.
+   
+## 직접 개발한 것
+1. 스킬 시스템:  
+   SkillTreeUI.py: 스킬 선택 및 선택 후 적 일시 정지 기능.
+   
+3. 적 및 총알 시스템:  
+  enemy.py: 다양한 적 클래스와 BehaviorTree 기반 AI 구현.  
+  enemy_spawner.py: 시간이 지남에 따라 등장하는 적의 수와 유형을 다양화.  
+    적 생성 가중치를 통해 Enemy02, Enemy03, Enemy04 등 고유한 적을 조합.  
+  bullet.py, bullet_manager.py: 총알 효과(슬로우, 관통 등)와 충돌 처리. 그리고 가장 가까운 적에게 자동으로 발사 구현.
+
+5. 게임 씬:
+  main_scene.py: 게임의 메인 로직과 객체 통합.  
+  start_scene.py: 게임 시작 화면으로, "Press the Button" 텍스트가 표시되며, 키 입력 시 로딩 씬으로 전환.  
+  loading_scene.py: 게임 리소스를 로드하며 진행률 바와 로드된 리소스 이름을 표시. 완료 후 메인 씬으로 전환.  
+  gameover_scene.py, gamewin_scene.py: 게임 종료 및 승리 화면 구성.
+
+7. 레벨 및 경험치 시스템:  
+  level_bar.py, exp_item.py: 플레이어의 경험치와 레벨 업 시스템 구현.
+
+9. 타이머:  
+   timer.py: 제한 시간 구현 및 시간 종료 시 화면 전환 처리.  
 
 ## 현재까지의 진행 상황
 
