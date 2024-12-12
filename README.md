@@ -325,7 +325,7 @@ timer.py를 사용해 제한 시간을 표시하며, 종료 시 승리(gamewin_s
     적 생성 가중치를 통해 Enemy02, Enemy03, Enemy04 등 고유한 적을 조합.  
   bullet.py, bullet_manager.py: 총알 효과(슬로우, 관통 등)와 충돌 처리. 그리고 가장 가까운 적에게 자동으로 발사 구현.
 
-5. 게임 씬:
+5. 게임 씬:  
   main_scene.py: 게임의 메인 로직과 객체 통합.  
   start_scene.py: 게임 시작 화면으로, "Press the Button" 텍스트가 표시되며, 키 입력 시 로딩 씬으로 전환.  
   loading_scene.py: 게임 리소스를 로드하며 진행률 바와 로드된 리소스 이름을 표시. 완료 후 메인 씬으로 전환.  
