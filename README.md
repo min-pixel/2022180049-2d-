@@ -1,5 +1,6 @@
 1차 발표: https://youtu.be/Nr-rIA4Na6w  
 2차 발표: https://youtu.be/yC9KzDTfIm4  
+3차 발표: https://youtu.be/0khjbpU0zbc  
 ## 게임의 간단한 소개 (카피의 경우 원작에 대한 언급)  
   뱀파이어 서바이벌 장르의 게임  
   제목 : Pokemon Survival (포켓몬 서바이벌)  
